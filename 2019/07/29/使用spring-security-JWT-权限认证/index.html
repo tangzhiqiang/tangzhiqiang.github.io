@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>使用spring security + JWT 权限认证 | 激情的程序员</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content>
+    <meta name="description" content="JWT 简介JWT是 json web token 缩写。它将用户信息加密到token里，服务器不保存任何用户信息。服务器通过使用保存的密钥验证 token的正确性，只要正确即通过验证。 优点是在分布式系统中，很好地解决了单点登录问题，很容易解决了session共享的问题。  缺点是无法作废已颁布的令牌/不易应对数据过期。  JWT的结构  JWT包含了使用 . 分隔的三部分： Header 头部">
+<meta name="keywords" content="个人博客，激情的程序员，博客，java ，python ，spring boot ，spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用spring security + JWT 权限认证">
+<meta property="og:url" content="http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/index.html">
+<meta property="og:site_name" content="激情的程序员">
+<meta property="og:description" content="JWT 简介JWT是 json web token 缩写。它将用户信息加密到token里，服务器不保存任何用户信息。服务器通过使用保存的密钥验证 token的正确性，只要正确即通过验证。 优点是在分布式系统中，很好地解决了单点登录问题，很容易解决了session共享的问题。  缺点是无法作废已颁布的令牌/不易应对数据过期。  JWT的结构  JWT包含了使用 . 分隔的三部分： Header 头部">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11462107-438ac228458facd1.png!web?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11462107-8069112b7c0bdc6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11462107-ae6723be00e3dc0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11462107-6791e6518b14ad58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11462107-24307c53c0a884ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-07-29T03:20:48.564Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用spring security + JWT 权限认证">
+<meta name="twitter:description" content="JWT 简介JWT是 json web token 缩写。它将用户信息加密到token里，服务器不保存任何用户信息。服务器通过使用保存的密钥验证 token的正确性，只要正确即通过验证。 优点是在分布式系统中，很好地解决了单点登录问题，很容易解决了session共享的问题。  缺点是无法作废已颁布的令牌/不易应对数据过期。  JWT的结构  JWT包含了使用 . 分隔的三部分： Header 头部">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11462107-438ac228458facd1.png!web?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+    
+        <link rel="alternate" type="application/atom+xml" title="激情的程序员" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">唐志强</h5>
+          <a href="mailto:1910014933@qq.com" title="1910014933@qq.com" class="mail">1910014933@qq.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/tangzhiqiang" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/custom"  >
+                <i class="icon icon-lg icon-link"></i>
+                友链
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">使用spring security + JWT 权限认证</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">使用spring security + JWT 权限认证</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-07-29T03:18:47.000Z" itemprop="datePublished" class="page-time">
+  2019-07-29
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JWT-简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">JWT 简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#完整的JWT"><span class="post-toc-number">2.</span> <span class="post-toc-text">完整的JWT</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#如何使用JWT？"><span class="post-toc-number">3.</span> <span class="post-toc-text">如何使用JWT？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#为什么要使用JWT？"><span class="post-toc-number">4.</span> <span class="post-toc-text">为什么要使用JWT？</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#spring-security-简介"><span class="post-toc-number">5.</span> <span class="post-toc-text">spring security 简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实战"><span class="post-toc-number">6.</span> <span class="post-toc-text">实战</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#未完持续。。。。。"><span class="post-toc-number">7.</span> <span class="post-toc-text">未完持续。。。。。</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-使用spring-security-JWT-权限认证"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">使用spring security + JWT 权限认证</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-07-29 11:18:47" datetime="2019-07-29T03:18:47.000Z"  itemprop="datePublished">2019-07-29</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h3 id="JWT-简介"><a href="#JWT-简介" class="headerlink" title="JWT 简介"></a>JWT 简介</h3><p><code>JWT</code>是 <code>json web token</code> 缩写。它将用户信息加密到token里，服务器不保存任何用户信息。服务器通过使用保存的密钥验证 token的正确性，只要正确即通过验证。</p>
+<p>优点是在分布式系统中，很好地解决了单点登录问题，很容易解决了session共享的问题。 </p>
+<p>缺点是无法作废已颁布的令牌/不易应对数据过期。</p>
+<ul>
+<li>JWT的结构</li>
+</ul>
+<p>JWT包含了使用 . 分隔的三部分：</p>
+<p>Header 头部</p>
+<p>Payload 负载</p>
+<p>Signature 签名</p>
+<p>其结构看起来是这样的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xasdfasdfasdfxxxx.yydfdfdfdyyy.zzasdfasdfsadfasdfzzz</span><br></pre></td></tr></table></figure>
+
+<p>Header<br>在header中通常包含了两部分：token类型和采用的加密算法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;alg&quot;: &quot;HS256&quot;,</span><br><span class="line">  &quot;typ&quot;: &quot;JWT&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来对这部分内容使用 Base64Url 编码组成了JWT结构的第一部分。</p>
+<ul>
+<li>Payload<br>Token的第二部分是负载，它包含了claim， Claim是一些实体（通常指的用户）的状态和额外的元数据，有三种类型的claim： reserved , public 和 private .</li>
+</ul>
+<p>Reserved claims: 这些claim是JWT预先定义的，在JWT中并不会强制使用它们，而是推荐使用，常用的有 iss（签发者） , exp（过期时间戳） , sub（面向的用户） , aud（接收方） , iat（签发时间） 。</p>
+<p>Public claims：根据需要定义自己的字段，注意应该避免冲突</p>
+<p>Private claims：这些是自定义的字段，可以用来在双方之间交换信息</p>
+<p>负载使用的例子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"sub"</span>: <span class="string">"1234567890"</span>,</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Doe"</span>,</span><br><span class="line">  <span class="attr">"admin"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述的负载需要经过 Base64Url 编码后作为JWT结构的第二部分。</p>
+<ul>
+<li>Signature</li>
+</ul>
+<p>创建签名需要使用编码后的header和payload以及一个秘钥，使用header中指定签名算法进行签名。例如如果希望使用HMAC SHA256算法，那么签名应该使用下列方式创建：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  secret)</span><br></pre></td></tr></table></figure>
+
+<p>签名用于验证消息的发送者以及消息是没有经过篡改的。</p>
+<ul>
+<li><h3 id="完整的JWT"><a href="#完整的JWT" class="headerlink" title="完整的JWT"></a>完整的JWT</h3></li>
+</ul>
+<p>JWT格式的输出是以 <code>.</code> 分隔的三段Base64编码，与SAML等基于XML的标准相比，JWT在HTTP和HTML环境中更容易传递。</p>
+<p>下列的JWT展示了一个完整的JWT格式，它拼接了之前的Header， Payload以及秘钥签名：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="http://upload-images.jianshu.io/upload_images/11462107-438ac228458facd1.png!web?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+
+<h3 id="如何使用JWT？"><a href="#如何使用JWT？" class="headerlink" title="如何使用JWT？"></a>如何使用JWT？</h3><p>在身份鉴定的实现中，传统方法是在服务端存储一个session，给客户端返回一个cookie，而使用JWT之后，当用户使用它的认证信息登陆系统之后，会返回给用户一个JWT，用户只需要本地保存该token（通常使用local storage，也可以使用cookie）即可。</p>
+<p>当用户希望访问一个受保护的路由或者资源的时候，通常应该在 <code>Authorization</code>头部使用 <code>Bearer</code> 模式添加JWT，其内容看起来是下面这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Authorization: Bearer &lt;token&gt;</span><br></pre></td></tr></table></figure>
+
+<p>因为用户的状态在服务端的内存中是不存储的，所以这是一种 无状态 的认证机制。服务端的保护路由将会检查请求头 <code>Authorization</code> 中的JWT信息，如果合法，则允许用户的行为。由于JWT是自包含的，因此减少了需要查询数据库的需要。</p>
+<p>JWT的这些特性使得我们可以完全依赖其无状态的特性提供数据API服务，甚至是创建一个下载流服务。因为JWT并不使用Cookie的，所以你可以使用任何域名提供你的API服务而不需要担心跨域资源共享问题（CORS）。</p>
+<p>下面的序列图展示了该过程：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/11462107-8069112b7c0bdc6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+
+<p>微服务中流程：</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/11462107-ae6723be00e3dc0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<p>用户在提交登录信息后，服务器校验数据后将通过密钥的方式来生成一个字符串token返回给客户端，客户端在之后的请求会把token放在header里，在请求到达服务器后，服务器会检验和解密token，如果token被篡改或者失效将会拒绝请求，如果有效则服务器可以获得用户的相关信息并执行请求内容，最后将结果返回。<br>在微服务架构下,通常有单独一个服务Auth去管理相关认证，为了安全不会直接让用户访问某个服务，会开放一个入口服务作为网关gateway，只允许外网网关，所有请求首先访问gateway，有gateway将请求路由到各个服务。</p>
+<p>客户端请求网关后，网关会根据路径过滤请求，是登录获取token操作的路径则直接放行，请求直接到达auth服务进行登录操作，之后进行JWT私钥加密生成token返回给客户端；是其他请求将会进行token私钥解密校验，如果token被篡改或者失效则直接拒绝访问并返回错误信息，如果验证成功经过路由到达请求服务，请求服务响应并返回数据。</p>
+<ul>
+<li>如何实现登录、刷新、注销等？<br>登录比较简单，在验证身份信息后可以使用工具包例如jjwt根据用户信息生成token并设置有效时长，最后将token返回给客户端存储即可，客户端只需要每次访问时将token加在请求头里即可,然后在zuul增加一个filter,此filter来过滤请求，如果是登录获取token则放行，其他的话用公钥解密验证token是否有效。<br>如果要实现刷新，则需要在生成token时生成一个refreshKey，在登录时和token一并返回给客户端，然后由客户端保存定时使用refreshKey和token来刷新获取新的有效时长的token,这个refreshKey可自定义生成，为了安全起见，服务器可能需要缓存refreshKey，可使用redis来进行存储，每次刷新token都将生成新的refreshKey和token，服务器需要将老refreshKey替换，客户端保存新的token和refreshKey来进行之后的访问和刷新。<br>如果要实现注销，并使得旧的token即便在有效期内也不能通过验证，则需要修改登录、刷新、和优化zuul的filter。首先在登录时生成token和refreshKey后，需要将token也进行缓存，如果通过redis进行缓存可以直接放一个Set下，此Set存储所有未过期的token。其次，在刷新时在这个Set中删除旧的token并放入新的。最后对zuulFilter进行优化，在解密时先从redis里存放token的Set查找此token是否存在（redis的Set有提供方法），如果没有则直接拒绝，如果有再进行下一步解密验证有效时长，验证有效时长是为了防止刷新机制失效、没有刷新机制、网络异常强行退出等事件出现，在这种情况下旧的token没有被删除，导致了旧的token一直可以访问（如果只验证是否token是否在缓存中）。在注销时只需要删除redis中Set的token记录就好，最后写个定时器去定时删除redis中Set里面过时的token,原因也是刷新机制失效、没有刷新机制、网络异常强行退出等事件出现导致旧的token没有被删除。</li>
+</ul>
+<h3 id="为什么要使用JWT？"><a href="#为什么要使用JWT？" class="headerlink" title="为什么要使用JWT？"></a>为什么要使用JWT？</h3><p>相比XML格式，JSON更加简洁，编码之后更小。<br>因为JSON可以直接映射为对象，在大多数编程语言中都提供了JSON解析器，而XML则没有这么自然的文档-对象映射关系。</p>
+<h3 id="spring-security-简介"><a href="#spring-security-简介" class="headerlink" title="spring security 简介"></a>spring security 简介</h3><p>Spring Security是一个能够为基于Spring的企业应用系统提供声明式的安全访问控制解决方案的安全框架。它提供了一组可以在Spring应用上下文中配置的Bean，充分利用了Spring IoC，DI（控制反转Inversion of Control ,DI:Dependency Injection 依赖注入）和AOP（面向切面编程）功能，为应用系统提供声明式的安全访问控制功能，减少了为企业系统安全控制编写大量重复代码的工作。</p>
+<ul>
+<li>HttpSecurity 常用方法及说明<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/11462107-6791e6518b14ad58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://upload-images.jianshu.io/upload_images/11462107-24307c53c0a884ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+
+
+</li>
+</ul>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><ul>
+<li><p>引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--安全框架--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--JSON封装--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.36<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--JWT--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.jsonwebtoken<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jjwt<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>security 配置类 ,写一个继承于WebSecurityConfigurerAdapter的配置类,在重写带参httpsecurity,注入自定义的各种返回json的Handler</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"> <span class="meta">@Autowired</span></span><br><span class="line">    AjaxAuthenticationEntryPoint authenticationEntryPoint;  <span class="comment">//  未登陆时返回 JSON 格式的数据给前端（否则为 html）</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    AjaxAuthenticationSuccessHandler authenticationSuccessHandler;  <span class="comment">// 登录成功返回的 JSON 格式数据给前端（否则为 html）</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    AjaxAuthenticationFailureHandler authenticationFailureHandler;  <span class="comment">//  登录失败返回的 JSON 格式数据给前端（否则为 html）</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    AjaxLogoutSuccessHandler logoutSuccessHandler;  <span class="comment">// 注销成功返回的 JSON 格式数据给前端（否则为 登录时的 html）</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    AjaxAccessDeniedHandler accessDeniedHandler;    <span class="comment">// 无权访问返回的 JSON 格式数据给前端（否则为 403 html 页面）</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    SelfUserDetailsService userDetailsService; <span class="comment">// 自定义user</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter; <span class="comment">// JWT 拦截器</span></span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 加入自定义的安全认证</span></span><br><span class="line">        auth.userDetailsService(userDetailsService).passwordEncoder(<span class="keyword">new</span> BCryptPasswordEncoder());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 去掉 CSRF（跨域）</span></span><br><span class="line">        http.csrf().disable()</span><br><span class="line"> .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) <span class="comment">// 使用 JWT，关闭session</span></span><br><span class="line">                .and()</span><br><span class="line"></span><br><span class="line">                <span class="comment">//  未登陆时返回 JSON </span></span><br><span class="line">                .httpBasic().authenticationEntryPoint(authenticationEntryPoint) </span><br><span class="line">                .and()</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 所有请求必须认证</span></span><br><span class="line">                .authorizeRequests()</span><br><span class="line">                .anyRequest()</span><br><span class="line">                <span class="comment">// 认证的逻辑</span></span><br><span class="line">                .access(<span class="string">"@rbacauthorityservice.hasPermission(request,authentication)"</span>) <span class="comment">// RBAC 动态 url 认证</span></span><br><span class="line">                .and()</span><br><span class="line">                <span class="comment">//开启登录</span></span><br><span class="line">                .formLogin()</span><br><span class="line">                .loginPage(<span class="string">"/"</span>) </span><br><span class="line">                .successHandler(authenticationSuccessHandler) <span class="comment">// 登录成功</span></span><br><span class="line">                .failureHandler(authenticationFailureHandler) <span class="comment">// 登录失败</span></span><br><span class="line">                .permitAll()</span><br><span class="line">                .and()</span><br><span class="line">                <span class="comment">// 登出</span></span><br><span class="line">                .logout()</span><br><span class="line">                .logoutSuccessHandler(logoutSuccessHandler)</span><br><span class="line">                .permitAll();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记住我</span></span><br><span class="line">        http.rememberMe().rememberMeParameter(<span class="string">"remember-me"</span>)</span><br><span class="line">                .userDetailsService(userDetailsService).tokenValiditySeconds(<span class="number">300</span>);</span><br><span class="line"></span><br><span class="line">        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler); <span class="comment">// 无权访问 JSON 格式的数据</span></span><br><span class="line">        <span class="comment">//用重写的Filter替换掉原有的UsernamePasswordAuthenticationFilter实现使用json 数据也可以登陆</span></span><br><span class="line">        http.addFilterAt(customAuthenticationFilter(),</span><br><span class="line">                UsernamePasswordAuthenticationFilter.class);</span><br><span class="line"><span class="comment">// 设置执行其他工作前的 filter （最重要的验证 JWT）</span></span><br><span class="line">        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class); <span class="comment">// JWT Filter</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//注册自定义的UsernamePasswordAuthenticationFilter</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function">CustomAuthenticationFilter <span class="title">customAuthenticationFilter</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        CustomAuthenticationFilter filter = <span class="keyword">new</span> CustomAuthenticationFilter();</span><br><span class="line">        filter.setAuthenticationSuccessHandler(authenticationSuccessHandler);</span><br><span class="line">        filter.setAuthenticationFailureHandler(authenticationFailureHandler);</span><br><span class="line">        filter.setFilterProcessesUrl(<span class="string">"/login/self"</span>); <span class="comment">// 设置登陆接口名</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//这句很关键，重用WebSecurityConfigurerAdapter配置的AuthenticationManager，不然要自己组装AuthenticationManager</span></span><br><span class="line">        filter.setAuthenticationManager(authenticationManagerBean());</span><br><span class="line">        <span class="keyword">return</span> filter;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>编写高可用对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2019/1/12 16:20</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>: 高可用对象那个</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxResponseBody</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String status;</span><br><span class="line">    <span class="keyword">private</span> String msg;</span><br><span class="line">    <span class="keyword">private</span> Object result;</span><br><span class="line">    <span class="keyword">private</span> String jwtToken;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写各返回 handler类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 没有权限处理类</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxAccessDeniedHandler</span> <span class="keyword">implements</span> <span class="title">AccessDeniedHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        AjaxResponseBody responseBody = <span class="keyword">new</span> AjaxResponseBody();</span><br><span class="line"></span><br><span class="line">        responseBody.setStatus(<span class="string">"300"</span>);</span><br><span class="line">        responseBody.setMsg(<span class="string">"需要权限!"</span>);</span><br><span class="line"></span><br><span class="line">        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 未登陆时</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxAuthenticationEntryPoint</span> <span class="keyword">implements</span> <span class="title">AuthenticationEntryPoint</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">commence</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        AjaxResponseBody responseBody = <span class="keyword">new</span> AjaxResponseBody();</span><br><span class="line"></span><br><span class="line">        responseBody.setStatus(<span class="string">"000"</span>);</span><br><span class="line">        responseBody.setMsg(<span class="string">"未登录!"</span>);</span><br><span class="line"></span><br><span class="line">        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登录失败</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxAuthenticationFailureHandler</span> <span class="keyword">implements</span> <span class="title">AuthenticationFailureHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAuthenticationFailure</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        AjaxResponseBody responseBody = <span class="keyword">new</span> AjaxResponseBody();</span><br><span class="line"></span><br><span class="line">        responseBody.setStatus(<span class="string">"400"</span>);</span><br><span class="line">        responseBody.setMsg(<span class="string">"登陆失败"</span>);</span><br><span class="line"></span><br><span class="line">        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登陆成功</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxAuthenticationSuccessHandler</span> <span class="keyword">implements</span> <span class="title">AuthenticationSuccessHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAuthenticationSuccess</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        AjaxResponseBody responseBody = <span class="keyword">new</span> AjaxResponseBody();</span><br><span class="line"></span><br><span class="line">        responseBody.setStatus(<span class="string">"00"</span>);</span><br><span class="line">        responseBody.setMsg(<span class="string">"登陆成功!"</span>);</span><br><span class="line"></span><br><span class="line">        SelfUserDetails selfUserDetails = (SelfUserDetails) authentication.getPrincipal();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建 token ，并返回 ，设置过期时间为 300 秒</span></span><br><span class="line">        String jwtToken = JwtTokenUtil.generateToken(selfUserDetails.getUsername(), <span class="number">300</span>);</span><br><span class="line">        responseBody.setJwtToken(jwtToken);</span><br><span class="line"></span><br><span class="line">        response.getWriter().write(JSON.toJSONString(responseBody));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登出成功</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AjaxLogoutSuccessHandler</span> <span class="keyword">implements</span> <span class="title">LogoutSuccessHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLogoutSuccess</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        AjaxResponseBody responseBody = <span class="keyword">new</span> AjaxResponseBody();</span><br><span class="line"></span><br><span class="line">        responseBody.setStatus(<span class="string">"100"</span>);</span><br><span class="line">        responseBody.setMsg(<span class="string">"登陆成功"</span>);</span><br><span class="line"></span><br><span class="line">        httpServletResponse.getWriter().write(JSON.toJSONString(responseBody));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最用要的 JWT 认证 filter </p>
+<ul>
+<li>加密方式（对称加密，非对称加密）<br>非对称加密：生成非对称加密密钥（使用jdk自带的keytool工具,注意配置好JAVA_HOME，cmd 输入以下命令就会生产密钥到cmd 所在目录）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -genkey -alias jwt -keyalg  RSA -keysize 1024 -validity 365 -keystore jwt.jks</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<p>使用keytool生成密钥，别名为 <code>jwt</code>，算法为RSA，有效期为 <code>365</code>天，文件名为jwt.jks,把文件保存在当前打开cmd的路径下,它提示输入密码,输入自定义密码，当前我设置为 <code>mengma</code> ，接下的输入可以全部忽略，回车即可，最后输入 <code>y</code> 确定，把生成的文件复制到resources目录下,写一个JwtTokenUtil 生成和解析方法。</p>
+<ul>
+<li><p>JwtTokenUtil </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JwtTokenUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(<span class="string">"jwt.jks"</span>); <span class="comment">// 寻找证书文件</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> PrivateKey privateKey = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> PublicKey publicKey = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123; <span class="comment">// 将证书文件里边的私钥公钥拿出来</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            KeyStore keyStore = KeyStore.getInstance(<span class="string">"JKS"</span>); <span class="comment">// java key store 固定常量</span></span><br><span class="line">            keyStore.load(inputStream, <span class="string">"mengma"</span>.toCharArray());</span><br><span class="line">            privateKey = (PrivateKey) keyStore.getKey(<span class="string">"jwt"</span>, <span class="string">"mengma"</span>.toCharArray()); <span class="comment">// jwt 为 命令生成整数文件时的别名</span></span><br><span class="line">            publicKey = keyStore.getCertificate(<span class="string">"jwt"</span>).getPublicKey();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 使用私钥加密 token</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2019/1/13 20:43</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">generateToken</span><span class="params">(String subject, <span class="keyword">int</span> expirationSeconds)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Jwts.builder()</span><br><span class="line">                .setClaims(<span class="keyword">null</span>)</span><br><span class="line">                .setSubject(subject)</span><br><span class="line">                .setExpiration(<span class="keyword">new</span> Date(System.currentTimeMillis() + expirationSeconds * <span class="number">1000</span>))</span><br><span class="line">                .signWith(SignatureAlgorithm.RS256, privateKey)</span><br><span class="line">                .compact();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 不使用公钥私钥 加密token</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2019/1/13 20:41</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">generateToken</span><span class="params">(String subject, <span class="keyword">int</span> expirationSeconds, String salt)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Jwts.builder()</span><br><span class="line">                .setClaims(<span class="keyword">null</span>)</span><br><span class="line">                .setSubject(subject)</span><br><span class="line">                .setExpiration(<span class="keyword">new</span> Date(System.currentTimeMillis() + expirationSeconds * <span class="number">1000</span>))</span><br><span class="line">                .signWith(SignatureAlgorithm.HS512, salt) <span class="comment">// 不使用公钥私钥</span></span><br><span class="line">                .compact();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 通过 公钥解密token</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2019/1/13 20:40</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">parseToken</span><span class="params">(String token)</span> </span>&#123;</span><br><span class="line">        String subject = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Claims claims = Jwts.parser()</span><br><span class="line">                    .setSigningKey(publicKey)</span><br><span class="line">                    .parseClaimsJws(token).getBody();</span><br><span class="line">            subject = claims.getSubject();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> subject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 不嘛通过 公钥解密token</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span>:</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2019/1/13 20:40</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">parseToken</span><span class="params">(String token,String salt)</span> </span>&#123;</span><br><span class="line">        String subject = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Claims claims = Jwts.parser()</span><br><span class="line">                    .setSigningKey(salt) <span class="comment">// 不使用公钥私钥</span></span><br><span class="line">                    .parseClaimsJws(token).getBody();</span><br><span class="line">            subject = claims.getSubject();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> subject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>JwtAuthenticationTokenFilter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span>: Tangzhiqiang</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2019/1/13 21:18</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>: OncePerRequestFilter 确保在一次请求只通过一次filter，而不需要重复执行。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// TODO 还要实现 token 缓存</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JwtAuthenticationTokenFilter</span> <span class="keyword">extends</span> <span class="title">OncePerRequestFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    SelfUserDetailsService userDetailsService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        String authHeader = request.getHeader(<span class="string">"Authorization"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (authHeader != <span class="keyword">null</span> &amp;&amp; authHeader.startsWith(<span class="string">"Bearer "</span>)) &#123;</span><br><span class="line">            <span class="keyword">final</span> String authToken = authHeader.substring(<span class="string">"Bearer "</span>.length());</span><br><span class="line"></span><br><span class="line">            String username = JwtTokenUtil.parseToken(authToken);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (username != <span class="keyword">null</span>) &#123;</span><br><span class="line">                UserDetails userDetails = userDetailsService.loadUserByUsername(username);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (userDetails != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    UsernamePasswordAuthenticationToken authentication =</span><br><span class="line">                            <span class="keyword">new</span> UsernamePasswordAuthenticationToken(userDetails, <span class="keyword">null</span>, userDetails.getAuthorities());</span><br><span class="line">                    authentication.setDetails(<span class="keyword">new</span> WebAuthenticationDetailsSource().buildDetails(request));</span><br><span class="line"></span><br><span class="line">                    SecurityContextHolder.getContext().setAuthentication(authentication);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        chain.doFilter(request, response);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义 使用 json 格式登陆时filter （CustomAuthenticationFilter）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义 json 登录</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomAuthenticationFilter</span> <span class="keyword">extends</span> <span class="title">UsernamePasswordAuthenticationFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Authentication <span class="title">attemptAuthentication</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//attempt Authentication when Content-Type is json</span></span><br><span class="line">        <span class="keyword">if</span> (request.getContentType().equals(MediaType.APPLICATION_JSON_UTF8_VALUE)</span><br><span class="line">                || request.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)) &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            UsernamePasswordAuthenticationToken authRequest = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                String jsonString = GetRequestJsonUtils.getPostRequestJsonString(request);</span><br><span class="line">                SelfUserDetails selfUserDetails = JsonUtils.jsonToPojo(jsonString,SelfUserDetails.class);</span><br><span class="line">                authRequest = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(</span><br><span class="line">                        selfUserDetails.getUsername(), selfUserDetails.getPassword());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                authRequest = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(</span><br><span class="line">                        <span class="string">""</span>, <span class="string">""</span>);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                setDetails(request, authRequest);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.getAuthenticationManager().authenticate(authRequest);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//transmit it to UsernamePasswordAuthenticationFilter</span></span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.attemptAuthentication(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取 post 请求 request 中的 json数据工具类 （GetRequestJsonUtils）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GetRequestJsonUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回 json  字符串</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getPostRequestJsonString</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        BufferedReader br;</span><br><span class="line">        StringBuilder sb = <span class="keyword">null</span>;</span><br><span class="line">        String jsonString = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            br = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(</span><br><span class="line">                    request.getInputStream()));</span><br><span class="line">            String line = <span class="keyword">null</span>;</span><br><span class="line">            sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">            <span class="keyword">while</span> ((line = br.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                sb.append(line);</span><br><span class="line">            &#125;</span><br><span class="line">            jsonString = URLDecoder.decode(sb.toString(), <span class="string">"UTF-8"</span>);</span><br><span class="line">            jsonString = jsonString.substring(jsonString.indexOf(<span class="string">"&#123;"</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> jsonString;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>JsonUtils 工具类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JsonUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义jackson对象</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ObjectMapper MAPPER = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将对象转换成json字符串。</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Title: pojoToJson&lt;/p&gt;</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Description: &lt;/p&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">objectToJson</span><span class="params">(Object data)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String string = MAPPER.writeValueAsString(data);</span><br><span class="line">            <span class="keyword">return</span> string;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将json结果集转化为对象</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> jsonData json数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> beanType 对象中的object类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">jsonToPojo</span><span class="params">(String jsonData, Class&lt;T&gt; beanType)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            T t = MAPPER.readValue(jsonData, beanType);</span><br><span class="line">            <span class="keyword">return</span> t;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将json数据转换成pojo对象list</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Title: jsonToList&lt;/p&gt;</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Description: &lt;/p&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> jsonData</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> beanType</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt;<span class="function">List&lt;T&gt; <span class="title">jsonToList</span><span class="params">(String jsonData, Class&lt;T&gt; beanType)</span> </span>&#123;</span><br><span class="line">        JavaType javaType = MAPPER.getTypeFactory().constructParametricType(List.class, beanType);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            List&lt;T&gt; list = MAPPER.readValue(jsonData, javaType);</span><br><span class="line">            <span class="keyword">return</span> list;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用户访问权限具体判断逻辑（RbacAuthorityService）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(<span class="string">"rbacauthorityservice"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RbacAuthorityService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPermission</span><span class="params">(HttpServletRequest request, Authentication authentication)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Object userInfo = authentication.getPrincipal();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> hasPermission  = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (userInfo <span class="keyword">instanceof</span> UserDetails) &#123;</span><br><span class="line"></span><br><span class="line">            String username = ((UserDetails) userInfo).getUsername();</span><br><span class="line"></span><br><span class="line">            Collection&lt;? extends GrantedAuthority&gt; authorities = ((UserDetails) userInfo).getAuthorities();</span><br><span class="line">            Iterator&lt;? extends GrantedAuthority&gt; iterator = authorities.iterator();</span><br><span class="line">            <span class="keyword">for</span> (GrantedAuthority authority : authorities) &#123;</span><br><span class="line">                <span class="keyword">if</span> (authority.getAuthority().equals(<span class="string">"ROLE_ADMIN"</span>)) &#123;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//admin 可以访问的资源</span></span><br><span class="line">                    Set&lt;String&gt; urls = <span class="keyword">new</span> HashSet();</span><br><span class="line">                    urls.add(<span class="string">"/sys/**"</span>);</span><br><span class="line">                    urls.add(<span class="string">"/test/**"</span>);</span><br><span class="line">                    AntPathMatcher antPathMatcher = <span class="keyword">new</span> AntPathMatcher();</span><br><span class="line">                    <span class="keyword">for</span> (String url : urls) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (antPathMatcher.match(url, request.getRequestURI())) &#123;</span><br><span class="line">                            hasPermission = <span class="keyword">true</span>;</span><br><span class="line">                            <span class="keyword">break</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//user可以访问的资源</span></span><br><span class="line">            Set&lt;String&gt; urls = <span class="keyword">new</span> HashSet();</span><br><span class="line">            urls.add(<span class="string">"/test/**"</span>);</span><br><span class="line">            AntPathMatcher antPathMatcher = <span class="keyword">new</span> AntPathMatcher();</span><br><span class="line">            <span class="keyword">for</span> (String url : urls) &#123;</span><br><span class="line">                <span class="keyword">if</span> (antPathMatcher.match(url, request.getRequestURI())) &#123;</span><br><span class="line">                    hasPermission = <span class="keyword">true</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> hasPermission;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="未完持续。。。。。"><a href="#未完持续。。。。。" class="headerlink" title="未完持续。。。。。"></a>未完持续。。。。。</h3>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2019-07-29T03:20:48.564Z" itemprop="dateUpdated">2019-07-29 11:20:48</time>
+</span><br>
+
+
+        
+        这里可以写作者留言，标签和 hexo 中所有变量及辅助函数等均可调用，示例：<a href="/2019/07/29/使用spring-security-JWT-权限认证/" target="_blank" rel="external">http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://yoursite.com">
+            <img src="/img/avatar.jpg" alt="唐志强">
+            唐志强
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&title=《使用spring security + JWT 权限认证》 — 激情的程序员&pic=http://yoursite.com/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&title=《使用spring security + JWT 权限认证》 — 激情的程序员&source=个人博客，激情的程序员，博客，java ，python ，spring boot ，spring" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用spring security + JWT 权限认证》 — 激情的程序员&url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&via=http://yoursite.com" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/07/29/hello-world/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Hello World</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢您的支持~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>唐志强 &copy; 2019</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&title=《使用spring security + JWT 权限认证》 — 激情的程序员&pic=http://yoursite.com/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&title=《使用spring security + JWT 权限认证》 — 激情的程序员&source=个人博客，激情的程序员，博客，java ，python ，spring boot ，spring" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用spring security + JWT 权限认证》 — 激情的程序员&url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/&via=http://yoursite.com" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://yoursite.com/2019/07/29/使用spring-security-JWT-权限认证/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACvUlEQVR42u3aQU4DMRAEwPz/00HihAS76R7bJIfaE4pg4zKSPeqZxyN+nt/P759/fvL7uXrD/efP2+dx4sHDw8MbLf3+dfdfkCzifoOu3pZ88uLb8fDw8I7xkgXlx3270GTRyQbh4eHhfRovWVDyeb597dWCh4eH98m8+6ui+PoynsDDw8P7HF5ewrZl9GxTVopvPDw8vNO8lQbYu37+p/4eHh4eXtlVzyPUdrBgVijXq8XDw8M7wMsj1/baaKPetkAvfhMPDw/vAG8W4Ca8NpiYMer34OHh4S3w8mZVOxaQb0d+ndTjWXh4eHgHeHlrKi+j8zesjA4U24eHh4e3lbceHCTlchtVzOLduvrGw8PDG/HatlM7TLArJm7vuj/uPTw8PLwDvLaYzuPa2fjU7HdehBF4eHh4m3ht6NAikwXNNjRv0eHh4eHt4p04yldGDdp44sW/BA8PD+9feLMwdwW5Hg1f/jPw8PDwjvFmx24e1+YDB+sbdzlThoeHh7eJt9KyypcyGyaYhRFRfw8PDw9vgZcfynnDaaXRlV8V0Wbh4eHhHeDlBWs+IDUri9ff8GK1eHh4eFt5K0MAs3GBdkOXthgPDw9vK2+lRN61uFnAUfzf8PDw8A7wZo35vcd9fujnxTceHh7eCV4SB7TNsNkAwUr7LQoj8PDw8DbxZg2nPH5tFzS7lvDw8PDexWuP5llom48O3JfvUTmOh4eHd4DXlrl5QysJiHPeY/3Bw8PD28R7lk87CjA7xNuY43KD8PDw8A7wdrWaZvgiVlgIf/Hw8PBO8PLLYL38bQezNowa4OHh4R3jrRz3bfnblukrU1V4eHh47+XlcUPbxNoVW/zxV3h4eHgfwGvjgF3xa3vx4OHh4Z3m5Yd7cny3AwTrAceLkhoPDw9vK+90FtrGFnnJfmTiDA8PD+/uG78A+PZzqGC13MgAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
